@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 6532360}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1291,8 +1291,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 832575517}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3407,6 +3407,34 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6532359}
     - target: {fileID: 1037684679839175089, guid: 7b926610ffd99074a8c35cfcda807bf6, type: 3}
+      propertyPath: chasing
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037684679839175089, guid: 7b926610ffd99074a8c35cfcda807bf6, type: 3}
+      propertyPath: walking
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037684679839175089, guid: 7b926610ffd99074a8c35cfcda807bf6, type: 3}
+      propertyPath: maxChaseTime
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037684679839175089, guid: 7b926610ffd99074a8c35cfcda807bf6, type: 3}
+      propertyPath: minChaseTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037684679839175089, guid: 7b926610ffd99074a8c35cfcda807bf6, type: 3}
+      propertyPath: catchDistance
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037684679839175089, guid: 7b926610ffd99074a8c35cfcda807bf6, type: 3}
+      propertyPath: jumpscareTime
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037684679839175089, guid: 7b926610ffd99074a8c35cfcda807bf6, type: 3}
+      propertyPath: sightDistance
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037684679839175089, guid: 7b926610ffd99074a8c35cfcda807bf6, type: 3}
       propertyPath: 'destinations.Array.data[0]'
       value: 
       objectReference: {fileID: 1171990958}
@@ -3738,8 +3766,8 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 410087041}
   - {fileID: 832575519}
+  - {fileID: 410087041}
   - {fileID: 960937042}
   - {fileID: 6532359}
   - {fileID: 8915217605405379119}
