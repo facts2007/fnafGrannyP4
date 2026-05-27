@@ -39,9 +39,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
                 StopCoroutine("stayIdle");
                 StopCoroutine("chaseRoutine");
                 StartCoroutine("chaseRoutine");
-                aiAnim.ResetTrigger("walk");
-                aiAnim.ResetTrigger("idle");
-                aiAnim.SetTrigger("sprint");
+               
                 chasing = true;
             }
         }
@@ -50,10 +48,15 @@ public class NewMonoBehaviourScript : MonoBehaviour
             dest = player.position;
             ai.destination = dest;
             ai.speed = chaseSpeed;
+            aiAnim.ResetTrigger("walk");
+            aiAnim.ResetTrigger("idle");
+            aiAnim.SetTrigger("sprint");
             if (ai.remainingDistance <= catchDistance)
             {
                 player.gameObject.SetActive(false);
                 aiAnim.ResetTrigger("sprint");
+                aiAnim.ResetTrigger("walk");
+                aiAnim.ResetTrigger("idle");
                 aiAnim.SetTrigger("jumpscare");
                 StartCoroutine("DeathRoutine");
                 chasing = false;
@@ -66,6 +69,9 @@ public class NewMonoBehaviourScript : MonoBehaviour
             dest = currentDest.position;
             ai.destination = dest;
             ai.speed = walkSpeed;
+            aiAnim.ResetTrigger("sprint");
+            aiAnim.ResetTrigger("idle");
+            aiAnim.SetTrigger("walk");
 
             if (ai.remainingDistance <= ai.stoppingDistance)
             {
@@ -78,6 +84,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
                 if (randNum2 == 1)
                 {
                     aiAnim.ResetTrigger("walk");
+                    aiAnim.ResetTrigger("sprint");
                     aiAnim.SetTrigger("idle");
                     StopCoroutine("stayIdle");
                     StartCoroutine("stayIdle");
@@ -96,8 +103,7 @@ public class NewMonoBehaviourScript : MonoBehaviour
         walking = true;
         randNum = Random.Range(0, DestinationAmount);
         currentDest = destinations[randNum];
-        aiAnim.ResetTrigger("idle");
-        aiAnim.SetTrigger("walk");
+
     }
 
     IEnumerable chaseRoutine()
@@ -108,8 +114,6 @@ public class NewMonoBehaviourScript : MonoBehaviour
         chasing = false;
         randNum = Random.Range(0, DestinationAmount);
         currentDest = destinations[randNum];
-        aiAnim.ResetTrigger("sprint");
-        aiAnim.SetTrigger("walk");
     }
 
     IEnumerable DeathRoutine()
