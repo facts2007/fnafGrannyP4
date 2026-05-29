@@ -5,7 +5,7 @@ using UnityEngine.AI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class NewMonoBehaviourScript : MonoBehaviour
+public class EnemyAI : MonoBehaviour
 {
     public NavMeshAgent ai;
     public List<Transform> destinations;
@@ -20,79 +20,97 @@ public class NewMonoBehaviourScript : MonoBehaviour
     public Vector3 RayCastOffset;
     public string DeathScene;
 
+    private enum EnemyState { Walking, Idle, Chasing, Jumpscare }
+    private EnemyState currentState = EnemyState.Walking;
+    private bool isDead = false;
+
     void Start()
     {
         walking = true;
         randNum = Random.Range(0, DestinationAmount);
         currentDest = destinations[randNum];
+        SetAnimation(EnemyState.Walking);
     }
 
     private void Update()
     {
+        if (currentState == EnemyState.Jumpscare) return;
+
         Vector3 direction = (player.position - transform.position).normalized;
         RaycastHit hit;
         if (Physics.Raycast(transform.position + RayCastOffset, direction, out hit, sightDistance))
         {
-            if (hit.collider.gameObject.tag == "Player")
+            if (hit.collider.gameObject.tag == "Player" && !chasing)
             {
                 walking = false;
+                chasing = true;
                 StopCoroutine("stayIdle");
                 StopCoroutine("chaseRoutine");
                 StartCoroutine("chaseRoutine");
-               
-                chasing = true;
+                SetAnimation(EnemyState.Chasing);
             }
         }
-        if (chasing == true)
+
+        if (chasing)
         {
             dest = player.position;
             ai.destination = dest;
             ai.speed = chaseSpeed;
-            aiAnim.ResetTrigger("walk");
-            aiAnim.ResetTrigger("idle");
-            aiAnim.SetTrigger("sprint");
-            if (ai.remainingDistance <= catchDistance)
+
+            // isDead guard prevents this firing multiple times
+            if (!isDead && ai.hasPath && ai.remainingDistance <= catchDistance)
             {
-                player.gameObject.SetActive(false);
-                aiAnim.ResetTrigger("sprint");
-                aiAnim.ResetTrigger("walk");
-                aiAnim.ResetTrigger("idle");
-                aiAnim.SetTrigger("jumpscare");
-                StartCoroutine("DeathRoutine");
+                isDead = true;
                 chasing = false;
+                walking = false;
+                StopCoroutine("chaseRoutine");
+                player.gameObject.SetActive(false);
+                SetAnimation(EnemyState.Jumpscare);
+                StartCoroutine("DeathRoutine");
             }
-
         }
-
-        if (walking == true)
+        else if (walking)
         {
             dest = currentDest.position;
             ai.destination = dest;
             ai.speed = walkSpeed;
-            aiAnim.ResetTrigger("sprint");
-            aiAnim.ResetTrigger("idle");
-            aiAnim.SetTrigger("walk");
+
+            if (currentState != EnemyState.Walking)
+                SetAnimation(EnemyState.Walking);
 
             if (ai.remainingDistance <= ai.stoppingDistance)
             {
                 randNum2 = Random.Range(0, 2);
                 if (randNum2 == 0)
-                { 
+                {
                     randNum = Random.Range(0, DestinationAmount);
                     currentDest = destinations[randNum];
                 }
-                if (randNum2 == 1)
+                else
                 {
-                    aiAnim.ResetTrigger("walk");
-                    aiAnim.ResetTrigger("sprint");
-                    aiAnim.SetTrigger("idle");
+                    walking = false;
+                    SetAnimation(EnemyState.Idle);
                     StopCoroutine("stayIdle");
                     StartCoroutine("stayIdle");
-                    walking = false;
                 }
-
             }
+        }
+    }
 
+    private void SetAnimation(EnemyState state)
+    {
+        currentState = state;
+        aiAnim.ResetTrigger("walk");
+        aiAnim.ResetTrigger("idle");
+        aiAnim.ResetTrigger("sprint");
+        aiAnim.ResetTrigger("jumpscare");
+
+        switch (state)
+        {
+            case EnemyState.Walking:  aiAnim.SetTrigger("walk");      break;
+            case EnemyState.Idle:     aiAnim.SetTrigger("idle");      break;
+            case EnemyState.Chasing:  aiAnim.SetTrigger("sprint");    break;
+            case EnemyState.Jumpscare: aiAnim.SetTrigger("jumpscare"); break;
         }
     }
 
@@ -103,23 +121,26 @@ public class NewMonoBehaviourScript : MonoBehaviour
         walking = true;
         randNum = Random.Range(0, DestinationAmount);
         currentDest = destinations[randNum];
-
+        SetAnimation(EnemyState.Walking);
     }
 
-    IEnumerable chaseRoutine()
+    IEnumerator chaseRoutine()
     {
         chaseTime = Random.Range(minChaseTime, maxChaseTime);
         yield return new WaitForSeconds(chaseTime);
-        walking = true;
-        chasing = false;
-        randNum = Random.Range(0, DestinationAmount);
-        currentDest = destinations[randNum];
+        if (!isDead)
+        {
+            chasing = false;
+            walking = true;
+            randNum = Random.Range(0, DestinationAmount);
+            currentDest = destinations[randNum];
+            SetAnimation(EnemyState.Walking);
+        }
     }
 
-    IEnumerable DeathRoutine()
-   
+    IEnumerator DeathRoutine()
     {
-       yield return new WaitForSeconds(jumpscareTime);
-       SceneManager.LoadScene(DeathScene);
+        yield return new WaitForSeconds(jumpscareTime);
+        SceneManager.LoadScene(DeathScene);
     }
 }

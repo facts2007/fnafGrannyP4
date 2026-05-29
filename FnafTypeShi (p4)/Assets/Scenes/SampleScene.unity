@@ -253,7 +253,7 @@ Transform:
   m_GameObject: {fileID: 6532354}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 35.66, y: 0.997, z: -13.76}
+  m_LocalPosition: {x: 8.14, y: 0.997, z: -6.54}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1531,7 +1531,7 @@ Transform:
   m_GameObject: {fileID: 960937038}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 16.75, y: 0, z: 0}
   m_LocalScale: {x: 2.2915, y: 1, z: 2.4107}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1942,7 +1942,7 @@ MonoBehaviour:
   player: {fileID: 6532359}
   DestinationAmount: 5
   RayCastOffset: {x: 0, y: 0, z: 0}
-  DeathScene: Main scene
+  DeathScene: start
 --- !u!95 &1212601557
 Animator:
   serializedVersion: 7
