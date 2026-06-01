@@ -58,7 +58,7 @@ public class EnemyAI : MonoBehaviour
             ai.speed = chaseSpeed;
 
             // isDead guard prevents this firing multiple times
-            if (!isDead && ai.hasPath && ai.remainingDistance <= catchDistance)
+            if (!isDead && ai.isOnNavMesh && ai.hasPath && ai.pathStatus == NavMeshPathStatus.PathComplete && ai.remainingDistance <= catchDistance)
             {
                 isDead = true;
                 chasing = false;
@@ -141,6 +141,8 @@ public class EnemyAI : MonoBehaviour
     IEnumerator DeathRoutine()
     {
         yield return new WaitForSeconds(jumpscareTime);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         SceneManager.LoadScene(DeathScene);
     }
 }
