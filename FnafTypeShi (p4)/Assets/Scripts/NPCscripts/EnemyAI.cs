@@ -24,6 +24,9 @@ public class EnemyAI : MonoBehaviour
     private EnemyState currentState = EnemyState.Walking;
     private bool isDead = false;
 
+    public Camera jumpscareCamera;
+
+
     void Start()
     {
         walking = true;
@@ -57,13 +60,13 @@ public class EnemyAI : MonoBehaviour
             ai.destination = dest;
             ai.speed = chaseSpeed;
 
-            // isDead guard prevents this firing multiple times
             if (!isDead && ai.isOnNavMesh && ai.hasPath && ai.pathStatus == NavMeshPathStatus.PathComplete && ai.remainingDistance <= catchDistance)
             {
                 isDead = true;
                 chasing = false;
                 walking = false;
                 StopCoroutine("chaseRoutine");
+                jumpscareCamera.enabled = true;
                 player.gameObject.SetActive(false);
                 SetAnimation(EnemyState.Jumpscare);
                 StartCoroutine("DeathRoutine");
