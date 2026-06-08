@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -25,6 +26,8 @@ public class EnemyAI : MonoBehaviour
     private bool isDead = false;
 
     public Camera jumpscareCamera;
+    public Camera[] camerasToDisable;
+    public Canvas DisableUI;
 
 
     void Start()
@@ -66,10 +69,16 @@ public class EnemyAI : MonoBehaviour
                 chasing = false;
                 walking = false;
                 StopCoroutine("chaseRoutine");
+
+                foreach (Camera cam in camerasToDisable)
+                {
+                    if (cam != null) cam.enabled = false;
+                }
+                DisableUI.enabled = false;
                 jumpscareCamera.enabled = true;
                 player.gameObject.SetActive(false);
                 SetAnimation(EnemyState.Jumpscare);
-                StartCoroutine("DeathRoutine");
+                StartCoroutine("DeathRoutine"); 
             }
         }
         else if (walking)
@@ -117,6 +126,16 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+
+    public void stopChase()
+    {
+        chasing = false;
+        walking = true;
+        randNum = Random.Range(0, DestinationAmount);
+        currentDest = destinations[randNum];
+        SetAnimation(EnemyState.Walking);
+    }
+
     IEnumerator stayIdle()
     {
         idleTime = Random.Range(minIdleTime, maxIdleTime);
@@ -129,16 +148,9 @@ public class EnemyAI : MonoBehaviour
 
     IEnumerator chaseRoutine()
     {
-        chaseTime = Random.Range(minChaseTime, maxChaseTime);
-        yield return new WaitForSeconds(chaseTime);
-        if (!isDead)
-        {
-            chasing = false;
-            walking = true;
-            randNum = Random.Range(0, DestinationAmount);
-            currentDest = destinations[randNum];
-            SetAnimation(EnemyState.Walking);
-        }
+       chaseTime = Random.Range(minChaseTime, maxChaseTime);
+       yield return new WaitForSeconds(chaseTime);
+       stopChase();
     }
 
     IEnumerator DeathRoutine()
