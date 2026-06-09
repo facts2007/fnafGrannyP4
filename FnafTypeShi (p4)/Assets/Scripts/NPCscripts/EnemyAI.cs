@@ -156,6 +156,13 @@ public class EnemyAI : MonoBehaviour
 
     IEnumerator DeathRoutine()
     {
+        aiAnim.ResetTrigger("walk");
+        aiAnim.ResetTrigger("idle");
+        aiAnim.ResetTrigger("sprint");
+
+        yield return new WaitForSeconds(1.63f);
+        aiAnim.speed = 0f; 
+
         yield return new WaitForSeconds(jumpscareTime);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
