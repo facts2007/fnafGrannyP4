@@ -78,6 +78,7 @@ public class EnemyAI : MonoBehaviour
                 jumpscareCamera.enabled = true;
                 player.gameObject.SetActive(false);
                 SetAnimation(EnemyState.Jumpscare);
+                aiAnim.SetTrigger("cameraJumpscare");
                 StartCoroutine("DeathRoutine"); 
             }
         }
@@ -119,9 +120,9 @@ public class EnemyAI : MonoBehaviour
 
         switch (state)
         {
-            case EnemyState.Walking:  aiAnim.SetTrigger("walk");      break;
-            case EnemyState.Idle:     aiAnim.SetTrigger("idle");      break;
-            case EnemyState.Chasing:  aiAnim.SetTrigger("sprint");    break;
+            case EnemyState.Walking: aiAnim.SetTrigger("walk"); break;
+            case EnemyState.Idle: aiAnim.SetTrigger("idle"); break;
+            case EnemyState.Chasing: aiAnim.SetTrigger("sprint"); break;
             case EnemyState.Jumpscare: aiAnim.SetTrigger("jumpscare"); break;
         }
     }
