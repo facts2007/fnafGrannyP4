@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 2095028056245198507}
   - component: {fileID: 8834323548960935625}
   - component: {fileID: 2557559354408294892}
+  - component: {fileID: 6397445426716149604}
   m_Layer: 0
   m_Name: RaamPost (1)
   m_TagString: Untagged
@@ -217,3 +218,25 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &6397445426716149604
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3050010905625645333}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -8003494611657478776, guid: 51c804aa75a20cc4991c027c49558a8c, type: 3}
