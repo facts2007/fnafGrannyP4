@@ -46,9 +46,6 @@ AnimatorStateMachine:
   - serializedVersion: 1
     m_State: {fileID: 8227186757776971950}
     m_Position: {x: 600, y: 210, z: 0}
-  - serializedVersion: 1
-    m_State: {fileID: 8593142564942048045}
-    m_Position: {x: 635, y: 275, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: -991032579469478436}
@@ -82,7 +79,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -3828583913261678786, guid: 261250baedde2fb488e64fb4b64cbfc2, type: 3}
+  m_Motion: {fileID: 7400000, guid: eb40cf416ea364c45b0fb63d1af345c0, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -160,7 +157,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -4274770991410265338, guid: 261250baedde2fb488e64fb4b64cbfc2, type: 3}
+  m_Motion: {fileID: 7400000, guid: c12c0e8845adb9d45af961b35fa434ed, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -284,7 +281,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -8945691123924629249, guid: 261250baedde2fb488e64fb4b64cbfc2, type: 3}
+  m_Motion: {fileID: 7400000, guid: 77b767914d402fc46b51dd3a01d60d72, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -383,33 +380,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -3890653870177620053, guid: 261250baedde2fb488e64fb4b64cbfc2, type: 3}
-  m_Tag: 
-  m_SpeedParameter: 
-  m_MirrorParameter: 
-  m_CycleOffsetParameter: 
-  m_TimeParameter: 
---- !u!1102 &8593142564942048045
-AnimatorState:
-  serializedVersion: 6
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: JSRabbit
-  m_Speed: 1
-  m_CycleOffset: 0
-  m_Transitions: []
-  m_StateMachineBehaviours: []
-  m_Position: {x: 50, y: 50, z: 0}
-  m_IKOnFeet: 0
-  m_WriteDefaultValues: 1
-  m_Mirror: 0
-  m_SpeedParameterActive: 0
-  m_MirrorParameterActive: 0
-  m_CycleOffsetParameterActive: 0
-  m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: ecb9c4a21d9bae8468a175a13bce88b9, type: 2}
+  m_Motion: {fileID: 7400000, guid: a7ad0cfa2398e15488cc5e824f1ddf42, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
