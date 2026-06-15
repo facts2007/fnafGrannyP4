@@ -16,7 +16,7 @@ public class RabbitAudioController : MonoBehaviour
 
     [Header("Voice Sounds")]
     public AudioClip[] distortedLaughs;
-    public AudioClip jumpscareScream;
+    public AudioClip[] jumpscareSounds;
 
     [Range(0f, 1f)]
     public float footstepVolume = 1f;
@@ -74,7 +74,9 @@ public class RabbitAudioController : MonoBehaviour
     // JUMPSCARE
     public void PlayJumpscare()
     {
-        if (jumpscareScream != null)
-            voiceSource.PlayOneShot(jumpscareScream, jumpscareVolume);
+        AudioClip clip = GetRandomClip(jumpscareSounds);
+
+        if (clip != null)
+            voiceSource.PlayOneShot(clip, jumpscareVolume);
     }
 }
