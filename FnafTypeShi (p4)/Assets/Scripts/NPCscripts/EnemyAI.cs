@@ -74,7 +74,6 @@ public class EnemyAI : MonoBehaviour
 
         if (jumpscareVideo != null) jumpscareVideo.Prepare();
 
-        // Slot validation
         if (gameOverCanvas   == null) Debug.LogWarning("[EnemyAI] Game Over Canvas is not assigned!");
         if (gameOverCamera   == null) Debug.LogWarning("[EnemyAI] Game Over Camera is not assigned!");
         if (jumpscareVideo   == null) Debug.LogWarning("[EnemyAI] Jumpscare Video is not assigned!");
@@ -218,7 +217,6 @@ public class EnemyAI : MonoBehaviour
 
         aiAnim.speed = 0f;
 
-        // ── Switch to game over screen ─────────────────────────────
         if (jumpscareCamera != null) jumpscareCamera.enabled = false;
         if (gameOverCamera  != null) gameOverCamera.enabled  = true;
         if (gameOverCanvas  != null) gameOverCanvas.enabled  = true;
@@ -244,7 +242,6 @@ public class EnemyAI : MonoBehaviour
 
         yield return new WaitForSeconds(postJumpscareDelay);
 
-        // ── Fade to black then load death scene ────────────────────
         if (fadeToBlackImage != null)
         {
             fadeToBlackImage.enabled = true;

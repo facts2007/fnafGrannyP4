@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class hidingPlace : MonoBehaviour
 {
     public GameObject hideText, stopHideText;
@@ -9,54 +8,59 @@ public class hidingPlace : MonoBehaviour
     bool interactable, hiding;
     public float loseDistance;
 
+    [Header("Raycast Settings")]
+    public float interactDistance = 3f;
+    public Transform playerCamera;
+
     void Start()
     {
         interactable = false;
         hiding = false;
     }
 
-    void OnTriggerStay(Collider other)
+    void Update()
     {
-        if (other.CompareTag("MainCamera"))
+        RaycastHit hit;
+        if (Physics.Raycast(playerCamera.position, playerCamera.forward, out hit, interactDistance))
         {
-            hideText.SetActive(true);
-            interactable = true;
+            if (hit.transform == transform)
+            {
+                hideText.SetActive(true);
+                interactable = true;
+            }
+            else
+            {
+                hideText.SetActive(false);
+                interactable = false;
+            }
         }
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("MainCamera"))
+        else
         {
             hideText.SetActive(false);
             interactable = false;
         }
-    }
 
-    void Update()
-    {
-        if (interactable)
+        if (interactable && Input.GetKeyDown(KeyCode.E))
         {
-            if (interactable && Input.GetKeyDown(KeyCode.E))
+            hideText.SetActive(false);
+            hidingPlayer.SetActive(true);
+
+            float distance = Vector3.Distance(monsterTransform.position, normalPlayer.transform.position);
+            if (distance > loseDistance)
             {
-                hideText.SetActive(false);
-                hidingPlayer.SetActive(true);
-                float distance = Vector3.Distance(monsterTransform.position, normalPlayer.transform.position);
-                if (distance > loseDistance)
+                if (monsterScript.chasing == true)
                 {
-                    if (monsterScript.chasing == true)
-                    {
-                        monsterScript.stopChase();
-                    }
+                    monsterScript.stopChase();
                 }
-                hideText.SetActive(true);
-                hiding = true;
-                normalPlayer.SetActive(false);
-                interactable = false;
-                stopHideText.SetActive(true);
-                hideText.SetActive(false);
             }
+
+            hiding = true;
+            normalPlayer.SetActive(false);
+            interactable = false;
+            stopHideText.SetActive(true);
+            hideText.SetActive(false);
         }
+
         if (hiding)
         {
             if (Input.GetKeyDown(KeyCode.Q))
