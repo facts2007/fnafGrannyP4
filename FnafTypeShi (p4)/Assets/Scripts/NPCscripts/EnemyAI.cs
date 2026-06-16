@@ -10,8 +10,6 @@ using UnityEngine.Video;
 public class EnemyAI : MonoBehaviour
 {
     public NavMeshAgent ai;
-    // Just drag your destination points straight into this list —
-    // no need for a count field anymore. Add as many as you like.
     public List<Transform> destinations;
     public Animator aiAnim;
     public float walkSpeed, chaseSpeed, minIdleTime, maxIdleTime, idleTime, sightDistance, catchDistance, chaseTime, minChaseTime, maxChaseTime, jumpscareTime;
@@ -22,6 +20,8 @@ public class EnemyAI : MonoBehaviour
     int randNum, randNum2;
     public Vector3 RayCastOffset;
     public string DeathScene;
+
+    [HideInInspector] public bool sightDisabled = false;
 
     private enum EnemyState { Walking, Idle, Chasing, Jumpscare }
     private EnemyState currentState = EnemyState.Walking;
@@ -44,11 +44,7 @@ public class EnemyAI : MonoBehaviour
     public TextMeshProUGUI deathText;
     public float dotCycleSpeed = 0.4f;
 
-    // ── Post-Jumpscare Delay ───────────────────────────────────────
-    public float postJumpscareDelay = 3f;
-
     // ── Fade To Black ──────────────────────────────────────────────
-    // Assign a full-screen black Image inside the gameOverCanvas.
     public Image fadeToBlackImage;
     [Tooltip("How fast the screen fades to black before the scene loads.")]
     public float fadeToBlackSpeed = 2f;
@@ -89,18 +85,22 @@ public class EnemyAI : MonoBehaviour
     {
         if (currentState == EnemyState.Jumpscare) return;
 
-        Vector3 direction = (player.position - transform.position).normalized;
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position + RayCastOffset, direction, out hit, sightDistance))
+        // Only raycast if sight isn't disabled by a hiding spot
+        if (!sightDisabled)
         {
-            if (hit.collider.gameObject.tag == "Player" && !chasing)
+            Vector3 direction = (player.position - transform.position).normalized;
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position + RayCastOffset, direction, out hit, sightDistance))
             {
-                walking = false;
-                chasing = true;
-                StopCoroutine("stayIdle");
-                StopCoroutine("chaseRoutine");
-                StartCoroutine("chaseRoutine");
-                SetAnimation(EnemyState.Chasing);
+                if (hit.collider.gameObject.tag == "Player" && !chasing)
+                {
+                    walking = false;
+                    chasing = true;
+                    StopCoroutine("stayIdle");
+                    StopCoroutine("chaseRoutine");
+                    StartCoroutine("chaseRoutine");
+                    SetAnimation(EnemyState.Chasing);
+                }
             }
         }
 
@@ -238,9 +238,7 @@ public class EnemyAI : MonoBehaviour
         }
 
         StopCoroutine("AnimateDots");
-        if (deathText    != null) deathText.enabled    = false;
-
-        yield return new WaitForSeconds(postJumpscareDelay);
+        if (deathText != null) deathText.enabled = false;
 
         if (fadeToBlackImage != null)
         {
