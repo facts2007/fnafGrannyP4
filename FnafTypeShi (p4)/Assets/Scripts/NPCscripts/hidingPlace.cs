@@ -1,70 +1,86 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class hidingPlace : MonoBehaviour
 {
     public GameObject hideText, stopHideText;
     public GameObject normalPlayer, hidingPlayer;
-    public EnemyAI monsterScript;
-    public Transform monsterTransform;
-    bool interactable, hiding;
+    public List<EnemyAI> monsterScripts;
+    public List<Transform> monsterTransforms;
+    bool hiding;
+    bool playerInRange;
     public float loseDistance;
+
+    [Header("Player Collider")]
+    [Tooltip("Drag the specific collider on the player that should trigger the locker")]
+    public Collider playerCollider;
 
     void Start()
     {
-        interactable = false;
         hiding = false;
+        playerInRange = false;
+        if (hideText != null)     hideText.SetActive(false);
+        if (stopHideText != null) stopHideText.SetActive(false);
     }
 
-    void OnTriggerStay(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("MainCamera"))
+        // only react to the specific assigned collider
+        if (playerCollider != null && other == playerCollider)
         {
-            hideText.SetActive(true);
-            interactable = true;
+            playerInRange = true;
+            if (!hiding && hideText != null)
+                hideText.SetActive(true);
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("MainCamera"))
+        if (playerCollider != null && other == playerCollider)
         {
-            hideText.SetActive(false);
-            interactable = false;
+            playerInRange = false;
+            if (hideText != null)
+                hideText.SetActive(false);
         }
     }
 
     void Update()
     {
-        if (interactable)
+        if (playerInRange && !hiding && Input.GetKeyDown(KeyCode.E))
         {
-            if (interactable && Input.GetKeyDown(KeyCode.E))
+            hiding = true;
+            if (hideText != null)     hideText.SetActive(false);
+            if (stopHideText != null) stopHideText.SetActive(true);
+            if (hidingPlayer != null) hidingPlayer.SetActive(true);
+            if (normalPlayer != null) normalPlayer.SetActive(false);
+
+            for (int i = 0; i < monsterScripts.Count; i++)
             {
-                hideText.SetActive(false);
-                hidingPlayer.SetActive(true);
-                float distance = Vector3.Distance(monsterTransform.position, normalPlayer.transform.position);
-                if (distance > loseDistance)
+                EnemyAI monster = monsterScripts[i];
+                if (monster == null) continue;
+
+                if (monsterTransforms.Count > i && monsterTransforms[i] != null)
                 {
-                    if (monsterScript.chasing == true)
-                    {
-                        monsterScript.stopChase();
-                    }
+                    float dist = Vector3.Distance(monsterTransforms[i].position, normalPlayer.transform.position);
+                    if (dist > loseDistance && monster.chasing)
+                        monster.stopChase();
                 }
-                hideText.SetActive(true);
-                hiding = true;
-                normalPlayer.SetActive(false);
-                interactable = false;
-                stopHideText.SetActive(true);
-                hideText.SetActive(false);
+
+                monster.sightDisabled = true;
             }
         }
-        if (hiding)
+
+        if (hiding && Input.GetKeyDown(KeyCode.Q))
         {
-            if (Input.GetKeyDown(KeyCode.Q))
+            hiding = false;
+            if (stopHideText != null) stopHideText.SetActive(false);
+            if (hidingPlayer != null) hidingPlayer.SetActive(false);
+            if (normalPlayer != null) normalPlayer.SetActive(true);
+
+            foreach (EnemyAI monster in monsterScripts)
             {
-                stopHideText.SetActive(false);
-                hidingPlayer.SetActive(false);
-                normalPlayer.SetActive(true);
-                hiding = false;
+                if (monster == null) continue;
+                monster.sightDisabled = false;
             }
         }
     }
