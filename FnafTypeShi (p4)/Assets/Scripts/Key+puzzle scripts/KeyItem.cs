@@ -2,13 +2,15 @@ using UnityEngine;
 
 public class KeyItem : MonoBehaviour
 {
-    [Tooltip("Must match the keyID on the Door this key unlocks")]
+    [Tooltip("Use 'Fuse' for fuse pickups, or a unique ID for regular keys")]
     public string keyID;
     public string keyName = "Key";
+    [Tooltip("If true, uses the countable item system (for fuses). If false, uses unique key system (for doors).")]
+    public bool isCountable = false;
     public float interactDistance = 2f;
 
     private Transform player;
-    private bool canPickUp = false;
+    private bool canPickUp  = false;
     private bool wasInRange = false;
 
     void Start()
@@ -39,7 +41,12 @@ public class KeyItem : MonoBehaviour
     void PickUp()
     {
         InteractUI.instance.HidePrompt();
-        KeyInventory.instance.AddKey(keyID);
+
+        if (isCountable)
+            KeyInventory.instance.AddItem(keyID);
+        else
+            KeyInventory.instance.AddKey(keyID);
+
         Destroy(gameObject);
     }
 

@@ -89,17 +89,23 @@ public class EnemyAI : MonoBehaviour
         if (!sightDisabled)
         {
             Vector3 direction = (player.position - transform.position).normalized;
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position + RayCastOffset, direction, out hit, sightDistance))
+            float angleToPlayer = Vector3.Angle(transform.forward, direction);
+
+            // Only raycast if player is within 170 degree FOV (85 degrees either side)
+            if (angleToPlayer <= 85f)
             {
-                if (hit.collider.gameObject.tag == "Player" && !chasing)
+                RaycastHit hit;
+                if (Physics.Raycast(transform.position + RayCastOffset, direction, out hit, sightDistance))
                 {
-                    walking = false;
-                    chasing = true;
-                    StopCoroutine("stayIdle");
-                    StopCoroutine("chaseRoutine");
-                    StartCoroutine("chaseRoutine");
-                    SetAnimation(EnemyState.Chasing);
+                    if (hit.collider.gameObject.tag == "Player" && !chasing)
+                    {
+                        walking = false;
+                        chasing = true;
+                        StopCoroutine("stayIdle");
+                        StopCoroutine("chaseRoutine");
+                        StartCoroutine("chaseRoutine");
+                        SetAnimation(EnemyState.Chasing);
+                    }
                 }
             }
         }
