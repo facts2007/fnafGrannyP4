@@ -18,6 +18,8 @@ public class PlayerMovement : MonoBehaviour
     float verticalVelocity = 0f;
     bool isCrouching = false;
     Vector3 standingCameraLocalPos;
+    float standingCenterY;
+    float standingHeight;
 
     void Start()
     {
@@ -25,6 +27,8 @@ public class PlayerMovement : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         standingCameraLocalPos = cameraTransform.localPosition;
+        standingCenterY = controller.center.y;
+        standingHeight  = controller.height;
     }
 
     void Update()
@@ -42,8 +46,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = forward * moveZ + right * moveX;
         move = move.normalized;
 
-        if (controller.isGrounded)
-            verticalVelocity = -0.5f;
+        if (controller.isGrounded && verticalVelocity < 0f)
+            verticalVelocity = -2f;
         else
             verticalVelocity += gravity * Time.deltaTime;
 
@@ -54,6 +58,13 @@ public class PlayerMovement : MonoBehaviour
 
         float targetHeight = isCrouching ? crouchHeight : standHeight;
         controller.height = Mathf.Lerp(controller.height, targetHeight, Time.deltaTime * crouchTransitionSpeed);
+
+        // Preserve the FEET position based on however the controller was originally
+        // set up (center/height relationship at Start), instead of assuming the
+        // pivot sits exactly at the feet. This keeps the bottom of the capsule
+        // anchored to the floor regardless of where the object's origin actually is.
+        float heightDelta = controller.height - standingHeight;
+        controller.center = new Vector3(0f, standingCenterY + heightDelta / 2f, 0f);
 
         Vector3 targetCameraPos = isCrouching
             ? standingCameraLocalPos + crouchCameraOffset
