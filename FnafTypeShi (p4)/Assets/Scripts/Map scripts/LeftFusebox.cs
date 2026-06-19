@@ -9,7 +9,17 @@ using UnityEngine;
 /// - Add a Box Collider, set Is Trigger = TRUE, size it to cover the interact zone
 /// - Make sure your Player has the tag "Player"
 /// - Assign levers[], leverLights[], unlockTarget, confettiParticles in inspector
-/// - Player presses 1/2/3/4 to pull levers in sequence while in range
+/// - Player presses 1/2/3/4 to flip levers, in ANY order, each lever has ONE correct
+///   end state (up or down) decided randomly each playthrough.
+///
+/// HOW THE PUZZLE WORKS NOW:
+/// - On activate, each lever is randomly assigned a target state: UP or DOWN.
+/// - Player can flip levers in any order, any number of times.
+/// - A lever's light goes ORANGE the instant it's in its correct state (even if
+///   that's its starting position) and goes back to RED if moved out of it.
+/// - When ALL 4 levers are simultaneously in their correct state → solved.
+/// - There is no "wrong lever" reset anymore — no Simon Says order, just match
+///   the final state of every lever.
 /// </summary>
 public class LeftFusebox : MonoBehaviour
 {
@@ -27,9 +37,9 @@ public class LeftFusebox : MonoBehaviour
 
     [Header("Indicator Lights")]
     public Light[] leverLights      = new Light[4];
-    public Color   lightColorIdle   = Color.red;
-    public Color   lightColorStep   = new Color(1f, 0.5f, 0f); // orange
-    public Color   lightColorSolved = Color.green;
+    public Color   lightColorIdle   = Color.red;     // wrong state
+    public Color   lightColorStep   = new Color(1f, 0.5f, 0f); // orange = correct state
+    public Color   lightColorSolved = Color.green;   // all correct, solved
     public float   lightIntensity   = 2f;
 
     [Header("On Solve")]
@@ -38,28 +48,23 @@ public class LeftFusebox : MonoBehaviour
     public float          solveConfettiDelay = 2.5f;
 
     [Header("Feel")]
-    public float rotationSpeed      = 180f;
-    public float resetFlashDuration = 0.4f;
+    public float rotationSpeed = 180f;
 
     // ── runtime ───────────────────────────────────────────────────────────────
     private bool   isActive      = false;
     private bool   isSolved      = false;
-    private bool   interactable  = true;
     private bool   playerInRange = false;
-    private int[]  correctSequence;   // order to pull levers
-    private bool[] correctLeverDown;  // true = must be DOWN, false = must be UP
-    private int    currentStep   = 0;
-    private bool[] leverDown;
+    private bool[] targetDown;       // true = correct final state is DOWN
+    private bool[] leverDown;        // current state
     private bool[] leverAnimating;
 
-    // Keyboard keys mapped to lever indices (1=0, 2=1, 3=2, 4=3)
     private KeyCode[] leverKeys = { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4 };
 
     void Start()
     {
         leverDown      = new bool[levers.Length];
         leverAnimating = new bool[levers.Length];
-        correctLeverDown = new bool[levers.Length];
+        targetDown     = new bool[levers.Length];
 
         foreach (var l in leverLights)
         {
@@ -78,7 +83,7 @@ public class LeftFusebox : MonoBehaviour
 
     void Update()
     {
-        if (!isActive || isSolved || !interactable || !playerInRange) return;
+        if (!isActive || isSolved || !playerInRange) return;
 
         for (int i = 0; i < leverKeys.Length; i++)
         {
@@ -105,29 +110,24 @@ public class LeftFusebox : MonoBehaviour
         InteractUI.instance.HidePrompt();
     }
 
+    /// <summary>Called by RightFusebox when it breaks.</summary>
     public void ActivateFusebox()
     {
-        isActive         = true;
-        correctSequence  = RandomSequence(levers.Length);
-        correctLeverDown = new bool[levers.Length];
+        isActive = true;
 
-        // randomly assign each lever a required direction
-        for (int i = 0; i < correctLeverDown.Length; i++)
-            correctLeverDown[i] = Random.value > 0.5f;
-
-        foreach (var l in leverLights)
+        string log = "";
+        for (int i = 0; i < levers.Length; i++)
         {
-            if (l != null)
-            {
-                l.enabled = true;
-                l.color   = lightColorIdle;
-            }
-        }
+            targetDown[i] = Random.value > 0.5f;
+            log += levers[i].leverName + (targetDown[i] ? "↓" : "↑") + " ";
 
-        string seq = "";
-        foreach (int idx in correctSequence)
-            seq += levers[idx].leverName + (correctLeverDown[idx] ? "↓" : "↑") + " → ";
-        Debug.Log("[LeftFusebox] Activated! Sequence: " + seq.TrimEnd(' ', '→'));
+            if (leverLights[i] != null)
+                leverLights[i].enabled = true;
+        }
+        Debug.Log("[LeftFusebox] Activated! Target states: " + log);
+
+        // Check immediately in case any lever already happens to be in its correct starting state
+        RefreshAllLights();
 
         if (playerInRange)
             InteractUI.instance.ShowPrompt("1/2/3/4 - Pull Levers");
@@ -155,52 +155,28 @@ public class LeftFusebox : MonoBehaviour
         levers[index].leverTransform.localEulerAngles = targetRot;
         leverAnimating[index] = false;
 
-        if (leverDown[index])
-            EvaluatePull(index);
+        RefreshLight(index);
+        CheckSolved();
     }
 
-    void EvaluatePull(int index)
+    void RefreshLight(int index)
     {
-        bool expectedDown = correctLeverDown[correctSequence[currentStep]];
-
-        if (index == correctSequence[currentStep] && leverDown[index] == expectedDown)
-        {
-            if (leverLights[index] != null)
-                leverLights[index].color = lightColorStep;
-
-            currentStep++;
-            Debug.Log($"[LeftFusebox] Correct! Step {currentStep}/{levers.Length}");
-
-            if (currentStep >= levers.Length)
-                StartCoroutine(SolveSequence());
-        }
-        else
-        {
-            Debug.Log("[LeftFusebox] Wrong! Resetting.");
-            StartCoroutine(WrongReset());
-        }
+        if (leverLights[index] == null || isSolved) return;
+        leverLights[index].color = (leverDown[index] == targetDown[index]) ? lightColorStep : lightColorIdle;
     }
 
-    IEnumerator WrongReset()
+    void RefreshAllLights()
     {
-        interactable = false;
-
-        foreach (var l in leverLights)
-            if (l != null) l.color = Color.red;
-
-        yield return new WaitForSeconds(resetFlashDuration);
-
-        currentStep = 0;
         for (int i = 0; i < levers.Length; i++)
-        {
-            leverDown[i] = false;
-            if (levers[i].leverTransform != null)
-                levers[i].leverTransform.localEulerAngles = levers[i].rotationUp;
-            if (leverLights[i] != null)
-                leverLights[i].color = lightColorIdle;
-        }
+            RefreshLight(i);
+    }
 
-        interactable = true;
+    void CheckSolved()
+    {
+        for (int i = 0; i < levers.Length; i++)
+            if (leverDown[i] != targetDown[i]) return; // not all matching yet
+
+        StartCoroutine(SolveSequence());
     }
 
     IEnumerator SolveSequence()
@@ -220,17 +196,5 @@ public class LeftFusebox : MonoBehaviour
             Destroy(unlockTarget);
             Debug.Log("[LeftFusebox] Unlock target destroyed!");
         }
-    }
-
-    int[] RandomSequence(int length)
-    {
-        int[] seq = new int[length];
-        for (int i = 0; i < length; i++) seq[i] = i;
-        for (int i = length - 1; i > 0; i--)
-        {
-            int j = Random.Range(0, i + 1);
-            (seq[i], seq[j]) = (seq[j], seq[i]);
-        }
-        return seq;
     }
 }

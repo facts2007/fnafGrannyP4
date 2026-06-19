@@ -32,6 +32,7 @@ public class RightFusebox : MonoBehaviour
     private int  fusesInserted = 0;
     private bool isBroken      = false;
     private bool playerInRange = false;
+    private bool wasInRangeFallback = false;
 
     void Update()
     {
@@ -47,6 +48,20 @@ public class RightFusebox : MonoBehaviour
                 interactCollider.bounds.extents);
             foreach (var h in hits)
                 if (h.CompareTag("Player")) { inRange = true; break; }
+
+            // mimic OnTriggerEnter/Exit prompt behaviour for the fallback path
+            if (inRange && !wasInRangeFallback)
+            {
+                int remaining = fusesRequired - fusesInserted;
+                InteractUI.instance.ShowPrompt(remaining == fusesRequired
+                    ? $"Needs {fusesRequired} fuses!"
+                    : $"E - Insert Fuse ({remaining} left)");
+            }
+            else if (!inRange && wasInRangeFallback)
+            {
+                InteractUI.instance.HidePrompt();
+            }
+            wasInRangeFallback = inRange;
         }
 
         if (!inRange) return;
@@ -60,7 +75,12 @@ public class RightFusebox : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         playerInRange = true;
         if (!isBroken)
-            InteractUI.instance.ShowPrompt("E - Insert Fuse");
+        {
+            int remaining = fusesRequired - fusesInserted;
+            InteractUI.instance.ShowPrompt(remaining == fusesRequired
+                ? $"Needs {fusesRequired} fuses!"
+                : $"E - Insert Fuse ({remaining} left)");
+        }
     }
 
     void OnTriggerExit(Collider other)
