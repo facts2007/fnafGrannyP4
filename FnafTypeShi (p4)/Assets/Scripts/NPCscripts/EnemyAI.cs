@@ -27,6 +27,12 @@ public class EnemyAI : MonoBehaviour
     private EnemyState currentState = EnemyState.Walking;
     private bool isDead = false;
 
+    // ── Night Difficulty Scaling ─────────────────────────────────────
+    // Base speeds set in the inspector are treated as "Night 1" speeds.
+    // At Start(), they get multiplied by NightManager's current night multiplier.
+    private float baseWalkSpeed;
+    private float baseChaseSpeed;
+
     // ── Camera Swap Chain ──────────────────────────────────────────
     public Camera[] camerasToDisable;
     public Camera jumpscareCamera;
@@ -57,6 +63,12 @@ public class EnemyAI : MonoBehaviour
 
     void Start()
     {
+        // Store the inspector-set speeds as the "Night 1" baseline, then scale
+        // by however many nights in we are via NightManager (if present).
+        baseWalkSpeed  = walkSpeed;
+        baseChaseSpeed = chaseSpeed;
+        ApplyNightDifficulty();
+
         walking = true;
         randNum = Random.Range(0, destinations.Count);
         currentDest = destinations[randNum];
@@ -79,6 +91,22 @@ public class EnemyAI : MonoBehaviour
         if (jumpscareCamera  == null) Debug.LogWarning("[EnemyAI] Jumpscare Camera is not assigned!");
         if (disableUI        == null) Debug.LogWarning("[EnemyAI] Disable UI canvas is not assigned!");
         if (destinations.Count == 0)  Debug.LogWarning("[EnemyAI] No destinations assigned!");
+    }
+
+    /// <summary>
+    /// Scales walkSpeed/chaseSpeed based on the current night via NightManager.
+    /// Safe to call even if NightManager doesn't exist yet (falls back to base speed).
+    /// </summary>
+    private void ApplyNightDifficulty()
+    {
+        float multiplier = 1f;
+        if (NightManager.instance != null)
+            multiplier = NightManager.instance.GetSpeedMultiplier();
+
+        walkSpeed  = baseWalkSpeed  * multiplier;
+        chaseSpeed = baseChaseSpeed * multiplier;
+
+        Debug.Log($"[EnemyAI] Night difficulty applied. Multiplier: {multiplier:F2} | Walk: {walkSpeed:F2} | Chase: {chaseSpeed:F2}");
     }
 
     private void Update()
@@ -193,6 +221,9 @@ public class EnemyAI : MonoBehaviour
         walking = true;
         randNum = Random.Range(0, destinations.Count);
         currentDest = destinations[randNum];
+        dest = currentDest.position;
+        ai.destination = dest;
+        ai.speed = walkSpeed;
         SetAnimation(EnemyState.Walking);
     }
 
