@@ -7,6 +7,10 @@ public class KeyItem : MonoBehaviour
     public string keyName = "Key";
     [Tooltip("If true, uses the countable item system (for fuses). If false, uses unique key system (for doors).")]
     public bool isCountable = false;
+
+    [Header("Pickup Detection")]
+    [Tooltip("If true, uses the camera's box collider trigger (like the fuseboxes). If false, uses distance check from Player tag.")]
+    public bool useCameraCollider = false;
     public float interactDistance = 2f;
 
     private Transform player;
@@ -15,11 +19,20 @@ public class KeyItem : MonoBehaviour
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        if (!useCameraCollider)
+            player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     void Update()
     {
+        if (useCameraCollider)
+        {
+            // Pickup is handled via OnTriggerEnter/Exit below instead.
+            if (canPickUp && Input.GetKeyDown(KeyCode.E))
+                PickUp();
+            return;
+        }
+
         float distance = Vector3.Distance(transform.position, player.position);
         canPickUp = distance <= interactDistance;
 
@@ -38,6 +51,24 @@ public class KeyItem : MonoBehaviour
             PickUp();
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (!useCameraCollider) return;
+        if (!other.CompareTag("Player")) return;
+
+        canPickUp = true;
+        InteractUI.instance.ShowPrompt("E - Pick Up " + keyName);
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (!useCameraCollider) return;
+        if (!other.CompareTag("Player")) return;
+
+        canPickUp = false;
+        InteractUI.instance.HidePrompt();
+    }
+
     void PickUp()
     {
         InteractUI.instance.HidePrompt();
@@ -52,6 +83,7 @@ public class KeyItem : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
+        if (useCameraCollider) return; // gizmo only meaningful for distance mode
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, interactDistance);
     }
