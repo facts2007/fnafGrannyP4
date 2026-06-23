@@ -64,9 +64,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -256599021355303351, guid: c897b0b49aa247440bfbd80625cc04ea, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c897b0b49aa247440bfbd80625cc04ea, type: 3}
       propertyPath: m_Name
       value: key-box
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c897b0b49aa247440bfbd80625cc04ea, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821623529969584324, guid: c897b0b49aa247440bfbd80625cc04ea, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

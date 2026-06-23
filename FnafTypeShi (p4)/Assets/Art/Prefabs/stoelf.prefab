@@ -61,12 +61,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: e69e29b59e95c7e49aa1444e4cbe838b, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: e69e29b59e95c7e49aa1444e4cbe838b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 51e5bf00a75b41e4e93a53894742d0b0, type: 2}
     - target: {fileID: 919132149155446097, guid: e69e29b59e95c7e49aa1444e4cbe838b, type: 3}
       propertyPath: m_Name
       value: stoelf
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e69e29b59e95c7e49aa1444e4cbe838b, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

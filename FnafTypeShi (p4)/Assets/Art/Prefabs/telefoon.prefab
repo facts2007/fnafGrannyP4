@@ -60,6 +60,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6733177361254619370, guid: 3812505b0ae9b104ab2cd8f441ebb094, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: -1439730007547781893, guid: 3812505b0ae9b104ab2cd8f441ebb094, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -1439730007547781893, guid: 3812505b0ae9b104ab2cd8f441ebb094, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -68,10 +76,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: telefoon
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3812505b0ae9b104ab2cd8f441ebb094, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 7071182760956848314, guid: 3812505b0ae9b104ab2cd8f441ebb094, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7071182760956848314, guid: 3812505b0ae9b104ab2cd8f441ebb094, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 3931eefaa93f82a41a5201b9fa1a75ad, type: 2}
+    - target: {fileID: 8513859187771203891, guid: 3812505b0ae9b104ab2cd8f441ebb094, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: -8700617353114198275, guid: 3812505b0ae9b104ab2cd8f441ebb094, type: 3}

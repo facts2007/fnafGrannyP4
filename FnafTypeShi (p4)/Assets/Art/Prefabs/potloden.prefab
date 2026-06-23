@@ -52,6 +52,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: potloden
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f175d199acbbf8e4b83e7c674714b679, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 2800250516343163423, guid: f175d199acbbf8e4b83e7c674714b679, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 6944656104360116776, guid: f175d199acbbf8e4b83e7c674714b679, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6944656104360116776, guid: f175d199acbbf8e4b83e7c674714b679, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 

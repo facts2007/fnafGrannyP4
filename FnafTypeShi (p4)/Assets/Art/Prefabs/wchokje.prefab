@@ -68,9 +68,21 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: cb1bc04e27dc0ae4da4a0ffbc8b9be8f, type: 2}
+    - target: {fileID: -516098083770646512, guid: bd186e4f343f6df48bc0c779594d09fb, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: bd186e4f343f6df48bc0c779594d09fb, type: 3}
       propertyPath: m_Name
       value: wchokje
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: bd186e4f343f6df48bc0c779594d09fb, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 8416272007918961125, guid: bd186e4f343f6df48bc0c779594d09fb, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
