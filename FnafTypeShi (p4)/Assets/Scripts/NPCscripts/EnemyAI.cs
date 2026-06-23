@@ -60,6 +60,22 @@ public class EnemyAI : MonoBehaviour
     private Vector3 lastIdlePosition;
     private bool mustWalkBeforeIdle = false;
 
+    // ── Proximity Camera Shake ──────────────────────────────────────
+    [Header("Proximity Camera Shake")]
+    [Tooltip("Camera to shake when the enemy gets close. Usually the player's main camera.")]
+    public Transform playerCameraTransform;
+    [Tooltip("Distance at which the shake starts kicking in.")]
+    public float shakeStartDistance = 10f;
+    [Tooltip("Distance at which the shake reaches max intensity.")]
+    public float shakeMaxDistance = 2f;
+    [Tooltip("Max positional offset applied to the camera at closest range.")]
+    public float maxShakeMagnitude = 0.05f;
+    [Tooltip("How fast the shake noise oscillates.")]
+    public float shakeFrequency = 25f;
+
+    private Vector3 cameraShakeBasePos;
+    private bool shakeActive = false;
+
 
     void Start()
     {
@@ -111,7 +127,13 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        if (currentState == EnemyState.Jumpscare) return;
+        if (currentState == EnemyState.Jumpscare)
+        {
+            StopProximityShake();
+            return;
+        }
+
+        UpdateProximityShake();
 
         // Only raycast if sight isn't disabled by a hiding spot
         if (!sightDisabled)
@@ -319,5 +341,47 @@ public class EnemyAI : MonoBehaviour
             i++;
             yield return new WaitForSeconds(dotCycleSpeed);
         }
+    }
+
+    // ── Proximity Camera Shake ──────────────────────────────────────
+
+    private void UpdateProximityShake()
+    {
+        if (playerCameraTransform == null || player == null) return;
+
+        float distance = Vector3.Distance(transform.position, player.position);
+
+        if (distance > shakeStartDistance)
+        {
+            StopProximityShake();
+            return;
+        }
+
+        if (!shakeActive)
+        {
+            // Just entered shake range — remember the camera's resting local position
+            // so we can offset from it and cleanly restore it later.
+            cameraShakeBasePos = playerCameraTransform.localPosition;
+            shakeActive = true;
+        }
+
+        // 0 at shakeStartDistance, 1 at shakeMaxDistance (or closer)
+        float t = Mathf.InverseLerp(shakeStartDistance, shakeMaxDistance, distance);
+        t = Mathf.Clamp01(t);
+
+        float magnitude = maxShakeMagnitude * t;
+
+        float offsetX = (Mathf.PerlinNoise(Time.time * shakeFrequency, 0f) - 0.5f) * 2f * magnitude;
+        float offsetY = (Mathf.PerlinNoise(0f, Time.time * shakeFrequency) - 0.5f) * 2f * magnitude;
+
+        playerCameraTransform.localPosition = cameraShakeBasePos + new Vector3(offsetX, offsetY, 0f);
+    }
+
+    private void StopProximityShake()
+    {
+        if (!shakeActive) return;
+        if (playerCameraTransform != null)
+            playerCameraTransform.localPosition = cameraShakeBasePos;
+        shakeActive = false;
     }
 }

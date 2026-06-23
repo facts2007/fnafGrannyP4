@@ -107,4 +107,4 @@ MonoBehaviour:
   keyName: Fuse
   isCountable: 1
   useCameraCollider: 0
-  interactDistance: 0.8
+  interactDistance: 1.1

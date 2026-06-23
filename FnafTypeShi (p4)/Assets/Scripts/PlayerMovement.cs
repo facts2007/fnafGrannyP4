@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
@@ -7,28 +8,41 @@ public class PlayerMovement : MonoBehaviour
     public Transform cameraTransform;
     public float gravity = -9.81f;
 
-    [Header("Crouch Settings")]
-    public float crouchSpeed = 2.5f;
-    public float crouchHeight = 1f;
-    public float standHeight = 2f;
-    public float crouchTransitionSpeed = 8f;
-    public Vector3 crouchCameraOffset = new Vector3(0, -0.5f, 0);
+    [Header("Dash Settings")]
+    [Tooltip("How much faster than normal speed the dash burst is.")]
+    public float dashSpeedMultiplier = 3f;
+    [Tooltip("How long the dash burst lasts, in seconds.")]
+    public float dashDuration = 0.2f;
+    [Tooltip("Seconds it takes to regenerate ONE dash charge.")]
+    public float dashRechargeTime = 5f;
+    public KeyCode dashKey = KeyCode.LeftShift;
+
+    [Header("Dash Charges")]
+    [Tooltip("Max dash charges, set automatically from trophy count at Start (1 trophy = 1 dash, minimum 1).")]
+    public int maxDashCharges = 1;
+    [HideInInspector] public int currentDashCharges;
 
     CharacterController controller;
     float verticalVelocity = 0f;
-    bool isCrouching = false;
-    Vector3 standingCameraLocalPos;
-    float standingCenterY;
-    float standingHeight;
+
+    // ── Dash runtime state ──────────────────────────────────────────
+    bool isDashing = false;
+    float dashTimer = 0f;
+    Vector3 dashDirection;
+    float rechargeTimer = 0f;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        standingCameraLocalPos = cameraTransform.localPosition;
-        standingCenterY = controller.center.y;
-        standingHeight  = controller.height;
+
+        // 1 trophy = 1 dash charge, minimum 1 so the player always has at least one dash.
+        int trophies = NightManager.instance != null ? NightManager.instance.trophyCount : 0;
+        maxDashCharges    = Mathf.Max(1, trophies);
+        currentDashCharges = maxDashCharges;
+
+        Debug.Log($"[PlayerMovement] Max dash charges set to {maxDashCharges} (from {trophies} trophies).");
     }
 
     void Update()
@@ -51,28 +65,62 @@ public class PlayerMovement : MonoBehaviour
         else
             verticalVelocity += gravity * Time.deltaTime;
 
-        if (Input.GetKeyDown(KeyCode.C))
-            isCrouching = true;
-        if (Input.GetKeyUp(KeyCode.C))
-            isCrouching = false;
+        // ── Dash input ──────────────────────────────────────────────
+        if (Input.GetKeyDown(dashKey) && !isDashing && currentDashCharges > 0)
+            StartDash(move);
 
-        float targetHeight = isCrouching ? crouchHeight : standHeight;
-        controller.height = Mathf.Lerp(controller.height, targetHeight, Time.deltaTime * crouchTransitionSpeed);
+        HandleDashRecharge();
 
-        // Preserve the FEET position based on however the controller was originally
-        // set up (center/height relationship at Start), instead of assuming the
-        // pivot sits exactly at the feet. This keeps the bottom of the capsule
-        // anchored to the floor regardless of where the object's origin actually is.
-        float heightDelta = controller.height - standingHeight;
-        controller.center = new Vector3(0f, standingCenterY + heightDelta / 2f, 0f);
+        // ── Movement ────────────────────────────────────────────────
+        Vector3 finalMove;
+        if (isDashing)
+        {
+            finalMove = dashDirection * (speed * dashSpeedMultiplier) + Vector3.up * verticalVelocity;
+            dashTimer -= Time.deltaTime;
+            if (dashTimer <= 0f)
+                isDashing = false;
+        }
+        else
+        {
+            finalMove = move * speed + Vector3.up * verticalVelocity;
+        }
 
-        Vector3 targetCameraPos = isCrouching
-            ? standingCameraLocalPos + crouchCameraOffset
-            : standingCameraLocalPos;
-        cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, targetCameraPos, Time.deltaTime * crouchTransitionSpeed);
-
-        float currentSpeed = isCrouching ? crouchSpeed : speed;
-        Vector3 finalMove = move * currentSpeed + Vector3.up * verticalVelocity;
         controller.Move(finalMove * Time.deltaTime);
+    }
+
+    void StartDash(Vector3 moveInput)
+    {
+        // Dash in whatever direction the player is currently moving;
+        // if standing still, dash straight forward.
+        dashDirection = moveInput.sqrMagnitude > 0.01f ? moveInput : (cameraTransform.forward.WithY(0f)).normalized;
+
+        isDashing = true;
+        dashTimer = dashDuration;
+        currentDashCharges--;
+
+        Debug.Log($"[PlayerMovement] Dash used. Charges remaining: {currentDashCharges}/{maxDashCharges}");
+    }
+
+    void HandleDashRecharge()
+    {
+        if (currentDashCharges >= maxDashCharges) return;
+
+        rechargeTimer += Time.deltaTime;
+        if (rechargeTimer >= dashRechargeTime)
+        {
+            rechargeTimer = 0f;
+            currentDashCharges++;
+            Debug.Log($"[PlayerMovement] Dash charge recovered. Charges: {currentDashCharges}/{maxDashCharges}");
+        }
+    }
+}
+
+// Small helper extension to zero out Y component inline.
+public static class Vector3Extensions
+{
+    public static Vector3 WithY(this Vector3 v, float y)
+    {
+        v.y = y;
+        return v;
     }
 }
