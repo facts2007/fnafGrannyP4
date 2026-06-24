@@ -20,9 +20,19 @@ using UnityEngine;
 /// - When ALL 4 levers are simultaneously in their correct state → solved.
 /// - There is no "wrong lever" reset anymore — no Simon Says order, just match
 ///   the final state of every lever.
+/// - Before ActivateFusebox() is called (i.e. RightFusebox hasn't been solved
+///   yet), walking up to this fusebox shows a "needs power" prompt instead of
+///   the lever instructions.
 /// </summary>
 public class LeftFusebox : MonoBehaviour
 {
+    /// <summary>
+    /// Auto-assigned reference so spawned prefabs (e.g. RightFusebox) can find
+    /// this scene object at runtime, since prefabs can't hold a direct
+    /// Inspector reference to a scene-only object.
+    /// </summary>
+    public static LeftFusebox instance;
+
     [System.Serializable]
     public class LeverEntry
     {
@@ -47,6 +57,10 @@ public class LeftFusebox : MonoBehaviour
     public ParticleSystem confettiParticles;
     public float          solveConfettiDelay = 2.5f;
 
+    [Header("Prompts")]
+    public string unpoweredPrompt = "Needs to be powered by another fusebox";
+    public string activePrompt    = "1/2/3/4 - Pull Levers";
+
     [Header("Feel")]
     public float rotationSpeed = 180f;
 
@@ -59,6 +73,11 @@ public class LeftFusebox : MonoBehaviour
     private bool[] leverAnimating;
 
     private KeyCode[] leverKeys = { KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4 };
+
+    void Awake()
+    {
+        instance = this;
+    }
 
     void Start()
     {
@@ -99,8 +118,13 @@ public class LeftFusebox : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         playerInRange = true;
-        if (isActive && !isSolved)
-            InteractUI.instance.ShowPrompt("1/2/3/4 - Pull Levers");
+
+        if (isSolved) return;
+
+        if (isActive)
+            InteractUI.instance.ShowPrompt(activePrompt);
+        else
+            InteractUI.instance.ShowPrompt(unpoweredPrompt);
     }
 
     void OnTriggerExit(Collider other)
@@ -130,7 +154,7 @@ public class LeftFusebox : MonoBehaviour
         RefreshAllLights();
 
         if (playerInRange)
-            InteractUI.instance.ShowPrompt("1/2/3/4 - Pull Levers");
+            InteractUI.instance.ShowPrompt(activePrompt);
     }
 
     IEnumerator AnimateLever(int index)

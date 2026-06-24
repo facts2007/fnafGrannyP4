@@ -1,3 +1,4 @@
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,12 @@ using UnityEngine.UI;
 ///
 /// Fills a grid in the corner of the main menu with trophy icons based on
 /// NightManager.trophyCount. Grid fills left-to-right, top-to-bottom.
+///
+/// EASTER EGGS:
+/// Type "thatsfoxy" anywhere (no need to focus an input field) to award a
+/// bonus trophy. Type "thatshollow" to reset all trophies back to 0.
+/// These work like a Konami code — just type the letters in order on the
+/// keyboard while in the main menu scene.
 ///
 /// SETUP:
 /// - Put this on an empty GameObject in your Main Menu canvas
@@ -24,6 +31,15 @@ public class TrophyDisplay : MonoBehaviour
     [Tooltip("Safety cap so trophies don't infinitely overflow the screen. Set high or 0 for unlimited.")]
     public int maxTrophiesShown = 100;
 
+    [Header("Easter Egg Codes")]
+    public string giveTrophyCode = "thatsfoxy";
+    public string resetTrophyCode = "thatshollow";
+    [Tooltip("How many seconds of inactivity before the typed buffer resets, so unrelated typing doesn't accidentally chain into a code.")]
+    public float typingTimeout = 2f;
+
+    private StringBuilder typedBuffer = new StringBuilder();
+    private float lastKeyTime = 0f;
+
     void Start()
     {
         RefreshTrophies();
@@ -31,36 +47,62 @@ public class TrophyDisplay : MonoBehaviour
 
     void Update()
     {
-        // DEBUG TEST: press Y to add a fake trophy and refresh the grid.
-        // Remove this before shipping!
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            if (NightManager.instance != null)
-            {
-                NightManager.instance.trophyCount++;
-                Debug.Log($"[TrophyDisplay] DEBUG: Added test trophy. New count: {NightManager.instance.trophyCount}");
-                RefreshTrophies();
-            }
-            else
-            {
-                Debug.LogWarning("[TrophyDisplay] DEBUG: No NightManager instance found!");
-            }
-        }
+        HandleEasterEggTyping();
+    }
 
-        // DEBUG TEST: press R to fully reset trophy count + saved PlayerPrefs data.
-        // Remove this before shipping!
-        if (Input.GetKeyDown(KeyCode.R))
+    void HandleEasterEggTyping()
+    {
+        if (!Input.anyKeyDown) return;
+
+        // Only care about letter keys for these codes
+        string input = Input.inputString;
+        if (string.IsNullOrEmpty(input)) return;
+
+        foreach (char c in input)
         {
-            if (NightManager.instance != null)
+            if (!char.IsLetter(c)) continue;
+
+            // Reset buffer if the player paused typing for too long
+            if (Time.time - lastKeyTime > typingTimeout)
+                typedBuffer.Clear();
+
+            lastKeyTime = Time.time;
+            typedBuffer.Append(char.ToLower(c));
+
+            // Keep the buffer from growing forever — trim to the longest code length
+            int maxLen = Mathf.Max(giveTrophyCode.Length, resetTrophyCode.Length);
+            if (typedBuffer.Length > maxLen)
+                typedBuffer.Remove(0, typedBuffer.Length - maxLen);
+
+            string current = typedBuffer.ToString();
+
+            if (current.EndsWith(giveTrophyCode))
             {
-                NightManager.instance.trophyCount   = 0;
-                NightManager.instance.nightsUnlocked = 1;
-                PlayerPrefs.DeleteAll();
-                PlayerPrefs.Save();
-                Debug.Log("[TrophyDisplay] DEBUG: Reset trophyCount/nightsUnlocked and cleared PlayerPrefs.");
-                RefreshTrophies();
+                GiveBonusTrophy();
+                typedBuffer.Clear();
+            }
+            else if (current.EndsWith(resetTrophyCode))
+            {
+                ResetTrophies();
+                typedBuffer.Clear();
             }
         }
+    }
+
+    void GiveBonusTrophy()
+    {
+        if (NightManager.instance == null) return;
+        NightManager.instance.trophyCount++;
+        Debug.Log($"[TrophyDisplay] Easter egg triggered: bonus trophy awarded. Count: {NightManager.instance.trophyCount}");
+        RefreshTrophies();
+    }
+
+    void ResetTrophies()
+    {
+        if (NightManager.instance == null) return;
+        NightManager.instance.trophyCount = 0;
+        Debug.Log("[TrophyDisplay] Easter egg triggered: trophies reset to 0.");
+        RefreshTrophies();
     }
 
     public void RefreshTrophies()

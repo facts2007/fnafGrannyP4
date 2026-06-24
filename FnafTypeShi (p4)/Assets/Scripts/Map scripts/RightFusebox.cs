@@ -9,6 +9,15 @@ using UnityEngine;
 /// - Add a Box Collider to the fusebox, set Is Trigger = TRUE, size it to cover the interact zone
 /// - Make sure your Player has the tag "Player" and has a collider on it
 /// - Assign sparkParticles, leftFuseboxScript, fuseSlotTransforms in inspector
+///
+/// NOTE ON leftFuseboxScript:
+/// - If this RightFusebox is placed directly in the scene, you CAN drag the
+///   LeftFusebox scene object into this field as normal.
+/// - If this RightFusebox is spawned at runtime from a PREFAB (e.g. via
+///   RandomSpawner), the prefab asset cannot hold a reference to a scene-only
+///   object, so this field will be null on the spawned instance. To handle
+///   that, Awake() below automatically falls back to LeftFusebox.instance
+///   (a static reference LeftFusebox sets on itself) if this field is empty.
 /// </summary>
 public class RightFusebox : MonoBehaviour
 {
@@ -33,6 +42,21 @@ public class RightFusebox : MonoBehaviour
     private bool isBroken      = false;
     private bool playerInRange = false;
     private bool wasInRangeFallback = false;
+
+    void Awake()
+    {
+        // Prefab-spawned instances can't carry a scene-object reference, so
+        // fall back to LeftFusebox's static instance if the field is empty.
+        if (leftFuseboxScript == null)
+        {
+            leftFuseboxScript = LeftFusebox.instance;
+
+            if (leftFuseboxScript == null)
+                Debug.LogWarning("[RightFusebox] Could not auto-find LeftFusebox.instance! Make sure a LeftFusebox exists in the scene.");
+            else
+                Debug.Log("[RightFusebox] Auto-linked to LeftFusebox via static instance.");
+        }
+    }
 
     void Update()
     {
@@ -142,5 +166,7 @@ public class RightFusebox : MonoBehaviour
         Debug.Log("[RightFusebox] Broken! Activating left fusebox.");
         if (leftFuseboxScript != null)
             leftFuseboxScript.ActivateFusebox();
+        else
+            Debug.LogWarning("[RightFusebox] leftFuseboxScript is still null at break time — LeftFusebox was never linked!");
     }
 }

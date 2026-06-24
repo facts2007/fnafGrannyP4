@@ -540,6 +540,9 @@ MonoBehaviour:
   trophyPrefab: {fileID: 1833172194}
   gridParent: {fileID: 1436959440}
   maxTrophiesShown: 100
+  giveTrophyCode: thatsfoxy
+  resetTrophyCode: thatshollow
+  typingTimeout: 2
 --- !u!4 &465005661
 Transform:
   m_ObjectHideFlags: 0
@@ -2352,10 +2355,10 @@ MonoBehaviour:
   splashExitSpeed: 3
   musicSource: {fileID: 1145375966}
   backgroundMusic: {fileID: 8300000, guid: 4eeda5fe45528da4580a6a80cc459be4, type: 3}
-  musicMasterVolume: 0.5
-  musicFadeDelay: 28
+  musicMasterVolume: 0.418
+  musicFadeDelay: 30
   musicAmbientVolume: 0.25
-  musicFadeSpeed: 0.5
+  musicFadeSpeed: 0.2
   backgroundImage: {fileID: 967954069}
   bpm: 155
   pulseScale: 1.05
